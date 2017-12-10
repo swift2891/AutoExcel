@@ -1,3 +1,6 @@
+# author: Vigneshwar Padmanaban
+# date created: Dec 09, 2017
+
 from sys import argv
 import openpyxl
 from openpyxl.styles import Color, PatternFill, Font, Border
@@ -24,6 +27,7 @@ class AutoExcel:
     sh2_O = wb_O.create_sheet(index=1, title='+Current')
     sh3_O = wb_O.create_sheet(index=2, title='Charge_Discharge')
 
+    version = 0.1
     groupLength = []
     columnStart = 'A'
     columnStart3 = 'A'
@@ -57,11 +61,12 @@ class AutoExcel:
         print("Row#: " + str(i) + "  Saving " + str(current.value) + " in output..")
         if i == AutoExcel.maxRows:
             AutoExcel.groupLength.append(AutoExcel.index - 1)
+            AutoExcel.capture_Ch_Dc(i+1)
 
     @staticmethod
     def capture_Ch_Dc(i):
-        if AutoExcel.chdc_gap==None:
-            AutoExcel.chdc_gap=0
+        if AutoExcel.chdc_gap==None or AutoExcel.chdc_gap==" " or AutoExcel.chdc_gap=="/n":
+            AutoExcel.chdc_gap = 0
         lastIndex = i-1-int(AutoExcel.chdc_gap)
         print("last index: "+ str(lastIndex))
         print("sh3_index: "+ str(AutoExcel.sh3_index))
@@ -110,20 +115,27 @@ class AutoExcel:
 
     @staticmethod
     def mainApp():
+
         redFill = PatternFill(start_color='FFFF0000',
                               end_color='FFFF0000',
                               fill_type='solid')
         for i in range(2, AutoExcel.maxRows+1):
             current = AutoExcel.sh1.cell(row=i,column=column_index_from_string(AutoExcel.current_col))
-            # None eliminator
+            if type(AutoExcel.columnStart) == type(current.value):
+                currentVal = float(current.value)
+            elif type(AutoExcel.index) == type(current.value) or type(AutoExcel.version) == type(current.value):
+                currentVal = current.value
+            else:
+                print("Invalid Current Value Type")
+
             if current.value == None:
                 current.value = 0
-            if current.value<0:
+            if currentVal<0:
                 if AutoExcel.prevNegative == 'N':
                    AutoExcel.capture_Ch_Dc(i)
                 AutoExcel.negativeProc(current,i)
             elif AutoExcel.prevNegative == 'Y':
-
+                AutoExcel.capture_Ch_Dc(i)
                 AutoExcel.prevNegative = 'N'
                 potentialCoordinate = AutoExcel.columnStart + str(AutoExcel.index)
                 currentCoord = get_column_letter(int(column_index_from_string(AutoExcel.columnStart)) + 1) + str(AutoExcel.index)
