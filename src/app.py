@@ -16,116 +16,96 @@ class AutoExcel:
     wb = openpyxl.load_workbook(argv[1])
     # Output Excel
     wb_O = openpyxl.Workbook()
+    # Sheet1
+    sh1 = wb.get_sheet_by_name('Sheet1')
+    maxRows = sh1.max_row
+    sh1_O = wb_O.get_active_sheet()
+
+    groupLength = []
+    columnStart = 'A'
+    index = 1
+    prevNegative = 'N'
 
     @staticmethod
-    def addChart(groupLength,sh1_O):
+    def negativeProc(current,i):
+        AutoExcel.prevNegative = 'Y'
 
+        potentialCoordinate = AutoExcel.columnStart + str(AutoExcel.index)
+        currentCoord = get_column_letter(int(column_index_from_string(AutoExcel.columnStart)) + 1) + str(AutoExcel.index)
+        timeCoord = get_column_letter(int(column_index_from_string(AutoExcel.columnStart)) + 2) + str(AutoExcel.index)
+        capacityCoord = get_column_letter(int(column_index_from_string(AutoExcel.columnStart)) + 3) + str(AutoExcel.index)
+
+        print("the coordinates are: " + potentialCoordinate + " " + currentCoord + " " + capacityCoord)
+        potential = AutoExcel.sh1.cell(row=i, column=1)
+        time = AutoExcel.sh1.cell(row=i, column=3)
+        capacity = AutoExcel.sh1.cell(row=i, column=10)
+
+        AutoExcel.sh1_O[potentialCoordinate] = potential.value
+        AutoExcel.sh1_O[currentCoord] = current.value
+        AutoExcel.sh1_O[timeCoord] = time.value
+        AutoExcel.sh1_O[capacityCoord] = capacity.value
+        AutoExcel.index += 1
+        print("Row#: " + str(i) + "  Saving " + str(current.value) + " in output..")
+        if i == AutoExcel.maxRows:
+            AutoExcel.groupLength.append(AutoExcel.index - 1)
+
+    @staticmethod
+    def addChart(groupLength):
         print('Printing Chart...')
         chart = ScatterChart()
         chart.title = "Capacity Vs Voltage"
         chart.style = 13
         chart.x_axis.title = 'Capacity'
         chart.y_axis.title = 'Voltage'
-        le = (len(groupLength) * 3) + len(groupLength)
+        le = (len(groupLength) * 4) + len(groupLength)
         print("The sizes of each grp" + str(groupLength[0]))
-
         k = 0
         m = 1
-        graphIndex = 3
         print("list siz = " + str(len(groupLength)))
         print("le = " + str(le))
-        for j in range(3, le, 4):
+        for j in range(4, le, 5):
             print("j = " + str(j))
-            xvalues = Reference(sh1_O, min_col=j, min_row=1, max_row=groupLength[k])
-            values = Reference(sh1_O, min_col=m, min_row=1, max_row=groupLength[k])
+            xvalues = Reference(AutoExcel.sh1_O, min_col=j, min_row=1, max_row=groupLength[k])
+            values = Reference(AutoExcel.sh1_O, min_col=m, min_row=1, max_row=groupLength[k])
             series = Series(values, xvalues, title_from_data=True)
             chart.series.append(series)
             k += 1
-            m += 4
+            m += 5
 
-        sh1_O.add_chart(chart, 'L3')
+        AutoExcel.sh1_O.add_chart(chart, 'L3')
         AutoExcel.wb_O.save('output.xlsx')
 
     @staticmethod
     def mainApp():
-        # Sheet1
-        sh1 = AutoExcel.wb.get_sheet_by_name('Sheet1')
-        maxRows = sh1.max_row
-        sh1_O = AutoExcel.wb_O.get_active_sheet()
         redFill = PatternFill(start_color='FFFF0000',
                               end_color='FFFF0000',
                               fill_type='solid')
-
-        groupLength = []
-        columnStart = 'A'
-        index = 1
-        prevNegative = 'N'
-        for i in range(2, maxRows+1):
-            current = sh1.cell(row=i,column=2)
+        for i in range(2, AutoExcel.maxRows+1):
+            current = AutoExcel.sh1.cell(row=i,column=2)
             # None eliminator
             if current.value == None:
                 current.value = 0
             if current.value<0:
-                prevNegative = 'Y'
-
-                potentialCoordinate = columnStart + str(index)
-                currentCoord = get_column_letter(int(column_index_from_string(columnStart))+1) + str(index)
-                capacityCoord = get_column_letter(int(column_index_from_string(columnStart)) + 2) + str(index)
-
-                print("the coordinates are: "+potentialCoordinate +" "+ currentCoord +" "+ capacityCoord)
-                # currentCoord = 'B'+str(index)
-                potential = sh1.cell(row=i, column=1)
-                capacity = sh1.cell(row=i, column=10)
-
-                sh1_O[potentialCoordinate] = potential.value
-                sh1_O[currentCoord] = current.value
-                sh1_O[capacityCoord]= capacity.value
-                index += 1
-                print("Row#: "+str(i)+"  Saving "+str(current.value)+" in output..")
-                if i==maxRows:
-                    groupLength.append(index-1)
-            elif prevNegative == 'Y':
-                prevNegative = 'N'
-                potentialCoordinate = columnStart + str(index)
-                currentCoord = get_column_letter(int(column_index_from_string(columnStart)) + 1) + str(index)
-                capacityCoord = get_column_letter(int(column_index_from_string(columnStart)) + 2) + str(index)
-                sh1_O[currentCoord].fill = redFill
-                sh1_O[potentialCoordinate].fill = redFill
-                sh1_O[capacityCoord].fill = redFill
-                groupLength.append(index-1)
-                index = 1
-                columnStart = get_column_letter(int(column_index_from_string(columnStart))+4)
+                AutoExcel.negativeProc(current,i)
+            elif AutoExcel.prevNegative == 'Y':
+                AutoExcel.prevNegative = 'N'
+                potentialCoordinate = AutoExcel.columnStart + str(AutoExcel.index)
+                currentCoord = get_column_letter(int(column_index_from_string(AutoExcel.columnStart)) + 1) + str(AutoExcel.index)
+                timeCoord = get_column_letter(int(column_index_from_string(AutoExcel.columnStart)) + 2) + str(AutoExcel.index)
+                capacityCoord = get_column_letter(int(column_index_from_string(AutoExcel.columnStart)) + 3) + str(AutoExcel.index)
+                AutoExcel.sh1_O[currentCoord].fill = redFill
+                AutoExcel.sh1_O[potentialCoordinate].fill = redFill
+                AutoExcel.sh1_O[timeCoord].fill = redFill
+                AutoExcel.sh1_O[capacityCoord].fill = redFill
+                AutoExcel.groupLength.append(AutoExcel.index-1)
+                AutoExcel.index = 1
+                AutoExcel.columnStart = get_column_letter(int(column_index_from_string(AutoExcel.columnStart))+5)
             else:
                 continue
         print("Saving values..")
         AutoExcel.wb_O.save('output.xlsx')
 
-        AutoExcel.addChart(groupLength,sh1_O)
-        # print('Printing Chart...')
-        # chart = ScatterChart()
-        # chart.title = "Capacity Vs Voltage"
-        # chart.style = 13
-        # chart.x_axis.title = 'Capacity'
-        # chart.y_axis.title = 'Voltage'
-        # le = (len(groupLength)*3) + len(groupLength)
-        # print("The sizes of each grp"+str(groupLength[0]))
-        #
-        # k=0
-        # m=1
-        # graphIndex = 3
-        # print("list siz = " + str(len(groupLength)))
-        # print("le = " + str(le))
-        # for j in range(3,le,4):
-        #     print("j = "+str(j))
-        #     xvalues = Reference(sh1_O, min_col=j, min_row=1, max_row=groupLength[k])
-        #     values = Reference(sh1_O, min_col=m, min_row=1, max_row=groupLength[k])
-        #     series = Series(values, xvalues, title_from_data=True)
-        #     chart.series.append(series)
-        #     k += 1
-        #     m+=4
-        #
-        # sh1_O.add_chart(chart, 'L3')
-        # AutoExcel.wb_O.save('output.xlsx')
+        AutoExcel.addChart(AutoExcel.groupLength)
 
         print("xxxxx------ Program Ended ------xxx")
         print("Output File Created: output.xlsx")
