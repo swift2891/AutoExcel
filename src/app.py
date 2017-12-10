@@ -14,31 +14,40 @@ class AutoExcel:
     # Input Excel
     print("Loading Input file: " + argv[1])
     wb = openpyxl.load_workbook(argv[1])
+    # sh1 = wb.get_sheet_by_name('Sheet1')
+    sh1 = wb.get_active_sheet()
+    maxRows = sh1.max_row
     # Output Excel
     wb_O = openpyxl.Workbook()
-    # Sheet1
-    sh1 = wb.get_sheet_by_name('Sheet1')
-    maxRows = sh1.max_row
-    sh1_O = wb_O.get_active_sheet()
+    # sh1_O = wb_O.get_active_sheet()
+    sh1_O = wb_O.create_sheet(index=0, title='-Current')
+    sh2_O = wb_O.create_sheet(index=1, title='+Current')
+    sh3_O = wb_O.create_sheet(index=2, title='Charge_Discharge')
 
     groupLength = []
     columnStart = 'A'
+    columnStart3 = 'A'
     index = 1
+    sh3_index = 1
     prevNegative = 'N'
+    potential_col = input("Potential: ")
+    current_col = input("Current: ")
+    time_col = input("Time: ")
+    capacity_col = input("Capacity: ")
+    chdc_gap = input("Gap between Charge-Discharge: ")
 
     @staticmethod
     def negativeProc(current,i):
         AutoExcel.prevNegative = 'Y'
-
         potentialCoordinate = AutoExcel.columnStart + str(AutoExcel.index)
         currentCoord = get_column_letter(int(column_index_from_string(AutoExcel.columnStart)) + 1) + str(AutoExcel.index)
         timeCoord = get_column_letter(int(column_index_from_string(AutoExcel.columnStart)) + 2) + str(AutoExcel.index)
         capacityCoord = get_column_letter(int(column_index_from_string(AutoExcel.columnStart)) + 3) + str(AutoExcel.index)
 
         print("the coordinates are: " + potentialCoordinate + " " + currentCoord + " " + capacityCoord)
-        potential = AutoExcel.sh1.cell(row=i, column=1)
-        time = AutoExcel.sh1.cell(row=i, column=3)
-        capacity = AutoExcel.sh1.cell(row=i, column=10)
+        potential = AutoExcel.sh1.cell(row=i, column=column_index_from_string(AutoExcel.potential_col))
+        time = AutoExcel.sh1.cell(row=i, column=column_index_from_string(AutoExcel.time_col))
+        capacity = AutoExcel.sh1.cell(row=i, column=column_index_from_string(AutoExcel.capacity_col))
 
         AutoExcel.sh1_O[potentialCoordinate] = potential.value
         AutoExcel.sh1_O[currentCoord] = current.value
@@ -48,6 +57,30 @@ class AutoExcel:
         print("Row#: " + str(i) + "  Saving " + str(current.value) + " in output..")
         if i == AutoExcel.maxRows:
             AutoExcel.groupLength.append(AutoExcel.index - 1)
+
+    @staticmethod
+    def capture_Ch_Dc(i):
+        if AutoExcel.chdc_gap==None:
+            AutoExcel.chdc_gap=0
+        lastIndex = i-1-int(AutoExcel.chdc_gap)
+        print("last index: "+ str(lastIndex))
+        print("sh3_index: "+ str(AutoExcel.sh3_index))
+        potentialCoordinate3 = AutoExcel.columnStart3 + str(AutoExcel.sh3_index)
+        currentCoord3 = get_column_letter(int(column_index_from_string(AutoExcel.columnStart3)) + 1) + str(AutoExcel.sh3_index)
+        timeCoord3 = get_column_letter(int(column_index_from_string(AutoExcel.columnStart3)) + 2) + str(AutoExcel.sh3_index)
+        capacityCoord3 = get_column_letter(int(column_index_from_string(AutoExcel.columnStart3)) + 3) + str(AutoExcel.sh3_index)
+        print("the coordinates are: " + potentialCoordinate3 + " " + currentCoord3 + " " +timeCoord3 + " "+capacityCoord3)
+
+        potential3 = AutoExcel.sh1.cell(row=lastIndex, column=column_index_from_string(AutoExcel.potential_col))
+        current3 = AutoExcel.sh1.cell(row=lastIndex, column=column_index_from_string(AutoExcel.current_col))
+        time3 = AutoExcel.sh1.cell(row=lastIndex, column=column_index_from_string(AutoExcel.time_col))
+        capacity3 = AutoExcel.sh1.cell(row=lastIndex, column=column_index_from_string(AutoExcel.capacity_col))
+
+        AutoExcel.sh3_O[potentialCoordinate3] = potential3.value
+        AutoExcel.sh3_O[currentCoord3] = current3.value
+        AutoExcel.sh3_O[timeCoord3] = time3.value
+        AutoExcel.sh3_O[capacityCoord3] = capacity3.value
+        AutoExcel.sh3_index += 1
 
     @staticmethod
     def addChart(groupLength):
@@ -81,13 +114,16 @@ class AutoExcel:
                               end_color='FFFF0000',
                               fill_type='solid')
         for i in range(2, AutoExcel.maxRows+1):
-            current = AutoExcel.sh1.cell(row=i,column=2)
+            current = AutoExcel.sh1.cell(row=i,column=column_index_from_string(AutoExcel.current_col))
             # None eliminator
             if current.value == None:
                 current.value = 0
             if current.value<0:
+                if AutoExcel.prevNegative == 'N':
+                   AutoExcel.capture_Ch_Dc(i)
                 AutoExcel.negativeProc(current,i)
             elif AutoExcel.prevNegative == 'Y':
+
                 AutoExcel.prevNegative = 'N'
                 potentialCoordinate = AutoExcel.columnStart + str(AutoExcel.index)
                 currentCoord = get_column_letter(int(column_index_from_string(AutoExcel.columnStart)) + 1) + str(AutoExcel.index)
