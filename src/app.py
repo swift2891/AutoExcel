@@ -54,7 +54,7 @@ class AutoExcel:
     sh3_O = wb_O.create_sheet(index=2, title='Charge_Discharge')
     outputFile = 'output'
     outputFile = input("Enter a Name for Output File: ")
-    rowStarts = input('Row Starts at 2. Press Enter to confirm or Type a New value & Hit Enter')
+    rowStarts = input('Row Starts at 2. Hit Enter to Confirm or Type a New value: ')
     if(rowStarts == '' or rowStarts==None):
         rowStart=2
     else:
@@ -70,7 +70,12 @@ class AutoExcel:
     current_col = input("Current: ")
     time_col = input("Time: ")
     capacity_col = input("Capacity: ")
-    chdc_gap = input("Gap between Charge-Discharge: ")
+    # chdc_gap = input("Gap between Charge-Discharge: ")
+    chdc_gaps = input('Default Charge-Discharge Gap is 0. Hit Enter to Confirm / Type a New value: ')
+    if (chdc_gaps == '' or chdc_gaps == None):
+        chdc_gap = 0
+    else:
+        chdc_gap = int(chdc_gaps)
 
     @staticmethod
     def negativeProc(current,i):
