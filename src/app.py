@@ -3,22 +3,48 @@
 
 from sys import argv
 import openpyxl
+import sys
 from openpyxl.styles import Color, PatternFill, Font, Border
-from openpyxl.styles import colors
-from openpyxl.cell import Cell
+# from openpyxl.styles import colors
+# from openpyxl.cell import Cell
 from openpyxl.utils import column_index_from_string, get_column_letter
 from openpyxl.chart import (
     ScatterChart,
     Reference,
     Series,
 )
+import pyexcel as p
 
 class AutoExcel:
+    #Check Excel format
+    fileName = argv[1]
+    splitName = fileName.split('.')
+    splitName[1] = fileName[-3:]
+    if(splitName[1] == 'xls'):
+        print('Its a xls file. Converting to .xlsx file..')
+        p.save_book_as(file_name=fileName,dest_file_name=splitName[0]+'.xlsx')
+        targetInputFile = splitName[0]+'.xlsx'
+    elif(splitName[1]=='lsx'):
+        print('Its a xlsx file')
+        targetInputFile = fileName
+    else:
+        print('Invalid file format! Use either .xls or .xlsx')
+        sys.exit()
+
     # Input Excel
-    print("Loading Input file: " + argv[1])
-    wb = openpyxl.load_workbook(argv[1])
-    # sh1 = wb.get_sheet_by_name('Sheet1')
-    sh1 = wb.get_active_sheet()
+    print("Loading Input file: " + targetInputFile)
+    wb = openpyxl.load_workbook(targetInputFile)
+    # Get Correct Sheet
+    listOfSheets = wb.get_sheet_names()
+    # print(listOfSheets)
+    countOfSheets = 0
+    for sheet in listOfSheets:
+        print('Press '+str(countOfSheets)+' for sheet '+sheet)
+        countOfSheets+=1
+    choice = input('Enter Your Choice: ')
+    # sh1 = wb.get_active_sheet()
+    print('Sheet Selected: '+listOfSheets[int(choice)])
+    sh1 = wb.get_sheet_by_name(listOfSheets[int(choice)])
     maxRows = sh1.max_row
     # Output Excel
     wb_O = openpyxl.Workbook()
@@ -26,7 +52,13 @@ class AutoExcel:
     sh1_O = wb_O.create_sheet(index=0, title='-Current')
     sh2_O = wb_O.create_sheet(index=1, title='+Current')
     sh3_O = wb_O.create_sheet(index=2, title='Charge_Discharge')
-
+    outputFile = 'output'
+    outputFile = input("Enter a Name for Output File: ")
+    rowStarts = input('Row Starts at 2. Press Enter to confirm or Type a New value & Hit Enter')
+    if(rowStarts == '' or rowStarts==None):
+        rowStart=2
+    else:
+        rowStart = int(rowStarts)
     version = 0.1
     groupLength = []
     columnStart = 'A'
@@ -68,8 +100,8 @@ class AutoExcel:
         if AutoExcel.chdc_gap==None or AutoExcel.chdc_gap==" " or AutoExcel.chdc_gap=="/n":
             AutoExcel.chdc_gap = 0
         lastIndex = i-1-int(AutoExcel.chdc_gap)
-        print("last index: "+ str(lastIndex))
-        print("sh3_index: "+ str(AutoExcel.sh3_index))
+        # print("last index: "+ str(lastIndex))
+        # print("sh3_index: "+ str(AutoExcel.sh3_index))
         potentialCoordinate3 = AutoExcel.columnStart3 + str(AutoExcel.sh3_index)
         currentCoord3 = get_column_letter(int(column_index_from_string(AutoExcel.columnStart3)) + 1) + str(AutoExcel.sh3_index)
         timeCoord3 = get_column_letter(int(column_index_from_string(AutoExcel.columnStart3)) + 2) + str(AutoExcel.sh3_index)
@@ -99,10 +131,10 @@ class AutoExcel:
         print("The sizes of each grp" + str(groupLength[0]))
         k = 0
         m = 1
-        print("list siz = " + str(len(groupLength)))
-        print("le = " + str(le))
+        # print("list siz = " + str(len(groupLength)))
+        # print("le = " + str(le))
         for j in range(4, le, 5):
-            print("j = " + str(j))
+            # print("j = " + str(j))
             xvalues = Reference(AutoExcel.sh1_O, min_col=j, min_row=1, max_row=groupLength[k])
             values = Reference(AutoExcel.sh1_O, min_col=m, min_row=1, max_row=groupLength[k])
             series = Series(values, xvalues, title_from_data=True)
@@ -111,7 +143,8 @@ class AutoExcel:
             m += 5
 
         AutoExcel.sh1_O.add_chart(chart, 'L3')
-        AutoExcel.wb_O.save('output.xlsx')
+
+        AutoExcel.wb_O.save(AutoExcel.outputFile+'.xlsx')
 
     @staticmethod
     def mainApp():
@@ -119,15 +152,15 @@ class AutoExcel:
         redFill = PatternFill(start_color='FFFF0000',
                               end_color='FFFF0000',
                               fill_type='solid')
-        for i in range(2, AutoExcel.maxRows+1):
+        for i in range(AutoExcel.rowStart, AutoExcel.maxRows+1):
             current = AutoExcel.sh1.cell(row=i,column=column_index_from_string(AutoExcel.current_col))
             if type(AutoExcel.columnStart) == type(current.value):
                 currentVal = float(current.value)
             elif type(AutoExcel.index) == type(current.value) or type(AutoExcel.version) == type(current.value):
                 currentVal = current.value
             else:
-                print("Invalid Current Value Type")
-
+                pass
+                # print("Invalid Current Value Type: "+str(type(current.value)))
             if current.value == None:
                 current.value = 0
             if currentVal<0:
@@ -151,11 +184,11 @@ class AutoExcel:
             else:
                 continue
         print("Saving values..")
-        AutoExcel.wb_O.save('output.xlsx')
+        AutoExcel.wb_O.save(AutoExcel.outputFile+'.xlsx')
 
         AutoExcel.addChart(AutoExcel.groupLength)
 
         print("xxxxx------ Program Ended ------xxx")
-        print("Output File Created: output.xlsx")
+        print("Output File Created: "+AutoExcel.outputFile+".xlsx")
 
 AutoExcel.mainApp()
