@@ -16,7 +16,8 @@ class XLSCheck:
             source_f="C:\\Users\\Vignesh\\PycharmProjects\\AutoExcel\\src\\uploads\\"+fileName
             dest_f = "C:\\Users\\Vignesh\\PycharmProjects\\AutoExcel\\src\\uploads\\" + targetInputFile
             p.save_book_as(file_name=source_f, dest_file_name=dest_f)
-            XLSCheck.clean() #delete old file
+            # delete old xls file
+            XLSCheck.clean()
             return targetInputFile
         elif (splitName[1] == 'lsx'):
             print('Its a xlsx file')

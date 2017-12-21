@@ -7,16 +7,21 @@
     <script src="https://maxcdn.bootstrapcdn.com/bootstrap/3.3.5/js/bootstrap.min.js"></script>
 
     <title>Excel Conversion</title>
+
 </head>
 <body>
-<div class="container">
-<h1>Excel Converter</h1>
-<h3>Choose Your File (only .xls files)</h3>
+<div class="container" >
+<h1 align="center"><b>AutoExcel</b></h1>
+    <h3><b><u> About Us</u></b></h3>
+    <h3>A web app to automate Excel sheet manipulations. Developed for Electrical Engineering Research, FSU/FAMU Florida</h3>
+    <h3>Step 1: Choose Your File (only .xls or .xlsx files): </h3>
 
 <form id="upldform" enctype="multipart/form-data" method="post" action="/fileupload">
    <input id="ipfile" name="ipfile" type="file" />
     <br>
-   <input type="submit" class="btn btn-success" value="Convert To .XLSX" id="submit" />
+    <h3>Step 2: Submit Your File</h3>
+    <button class="btn btn-success" type="submit"> Submit <span class="glyphicon glyphicon-send"></span></button>
+    <!--<input type="submit" class="btn btn-success" value="Done" id="submit" />-->
 </form>
 </div>
 </body>

@@ -18,7 +18,6 @@ def clean():
         try:
             if os.path.isfile(file_path):
                 os.unlink(file_path)
-                # elif os.path.isdir(file_path): shutil.rmtree(file_path)
         except Exception as e:
             print(e)
 
@@ -54,6 +53,29 @@ def upload_file():
     else:
         return 'Failed'
 
+@app.route('/output',methods =['POST'])
+def manipulate_excel():
+    sheet_selected=request.form['sheetSelect']
+    potential_ip = request.form['potential_ip']
+    current_ip = request.form['current_ip']
+    time_ip = request.form['time_ip']
+    capacity_ip = request.form['capacity_ip']
+    rowstart_ip = request.form['rowstart_ip']
+    gap_ip = request.form['gap_ip']
+    valList=[]
+    valList.append(sheet_selected)
+    valList.append(potential_ip)
+    valList.append(current_ip)
+    valList.append(capacity_ip)
+    valList.append(time_ip)
+    valList.append(rowstart_ip)
+    valList.append(gap_ip)
+    for v in valList:
+        print(v)
+    AutoExcel.initialize(valList)
+    AutoExcel.mainApp()
+    return send_from_directory(app.config['UPLOAD_FOLDER'], 'output.xlsx')
+
 def ManipulateFile():
     listOfSheets = []
     print('Manipulating...')
@@ -66,14 +88,9 @@ def ManipulateFile():
             listOfSheets = AutoExcel.loadSheets()
             if len(listOfSheets)>1:
                 return listOfSheets
-            # AutoExcel.initialize()
-            # AutoExcel.mainApp()
-            # return send_from_directory(app.config['UPLOAD_FOLDER'], opFile)
             break
     else:
         print('Not good. no file in uploads dir')
-
-
 
 @app.before_first_request
 def initialize():
