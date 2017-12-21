@@ -4,6 +4,8 @@
 from sys import argv
 import openpyxl
 import sys
+
+import os
 from openpyxl.styles import Color, PatternFill, Font, Border
 # from openpyxl.styles import colors
 # from openpyxl.cell import Cell
@@ -13,69 +15,89 @@ from openpyxl.chart import (
     Reference,
     Series,
 )
-import pyexcel as p
 
 class AutoExcel:
-    #Check Excel format
-    fileName = argv[1]
-    splitName = fileName.split('.')
-    splitName[1] = fileName[-3:]
-    if(splitName[1] == 'xls'):
-        print('Its a xls file. Converting to .xlsx file..')
-        p.save_book_as(file_name=fileName,dest_file_name=splitName[0]+'.xlsx')
-        targetInputFile = splitName[0]+'.xlsx'
-    elif(splitName[1]=='lsx'):
-        print('Its a xlsx file')
-        targetInputFile = fileName
-    else:
-        print('Invalid file format! Use either .xls or .xlsx')
-        sys.exit()
-
-    # Input Excel
-    print("Loading Input file: " + targetInputFile)
-    wb = openpyxl.load_workbook(targetInputFile)
-    # Get Correct Sheet
-    listOfSheets = wb.get_sheet_names()
-    # print(listOfSheets)
-    countOfSheets = 0
-    for sheet in listOfSheets:
-        print('Press '+str(countOfSheets)+' for sheet '+sheet)
-        countOfSheets+=1
-    choice = input('Enter Your Choice: ')
-    # sh1 = wb.get_active_sheet()
-    print('Sheet Selected: '+listOfSheets[int(choice)])
-    sh1 = wb.get_sheet_by_name(listOfSheets[int(choice)])
-    maxRows = sh1.max_row
-    # Output Excel
-    wb_O = openpyxl.Workbook()
-    # sh1_O = wb_O.get_active_sheet()
-    sh1_O = wb_O.create_sheet(index=0, title='-Current')
-    sh2_O = wb_O.create_sheet(index=1, title='+Current')
-    sh3_O = wb_O.create_sheet(index=2, title='Charge_Discharge')
-    outputFile = 'output'
-    outputFile = input("Enter a Name for Output File: ")
-    rowStarts = input('Row Starts at 2. Hit Enter to Confirm or Type a New value: ')
-    if(rowStarts == '' or rowStarts==None):
-        rowStart=2
-    else:
-        rowStart = int(rowStarts)
-    version = 0.1
+    targetInputFile = None
+    wb = None
+    sh1 = None
+    wb_O = None
+    sh1_O = None
+    sh2_O = None
+    sh3_O = None
     groupLength = []
     columnStart = 'A'
     columnStart3 = 'A'
     index = 1
     sh3_index = 1
     prevNegative = 'N'
-    potential_col = input("Potential: ")
-    current_col = input("Current: ")
-    time_col = input("Time: ")
-    capacity_col = input("Capacity: ")
-    # chdc_gap = input("Gap between Charge-Discharge: ")
-    chdc_gaps = input('Default Charge-Discharge Gap is 0. Hit Enter to Confirm / Type a New value: ')
-    if (chdc_gaps == '' or chdc_gaps == None):
-        chdc_gap = 0
-    else:
-        chdc_gap = int(chdc_gaps)
+    potential_col = None
+    current_col = None
+    time_col = None
+    capacity_col = None
+    chdc_gap = 0
+    rowStarts = 0
+    rowStart = 0
+    version = 0.1
+    choice = None
+    listOfSheets = []
+    maxRows = 0
+    outputFile = 'dummy'
+
+    @staticmethod
+    def loadSheets():
+        for the_file in os.listdir('uploads'):
+            file_path = os.path.join('uploads', the_file)
+            try:
+                if the_file.endswith('xlsx'):
+                    AutoExcel.targetInputFile = file_path
+            except Exception as e:
+                print(e)
+        print(AutoExcel.targetInputFile)
+
+        # Input Excel
+        print("Loading Input file: " + AutoExcel.targetInputFile)
+        AutoExcel.wb = openpyxl.load_workbook(AutoExcel.targetInputFile)
+        # Get Correct Sheet
+        AutoExcel.listOfSheets = AutoExcel.wb.get_sheet_names()
+        # print(listOfSheets)
+        countOfSheets = 0
+        for sheet in AutoExcel.listOfSheets:
+            print('Press ' + str(countOfSheets) + ' for sheet ' + sheet)
+            countOfSheets += 1
+        AutoExcel.choice = input('Enter Your Choice: ')
+        # sh1 = wb.get_active_sheet()
+        print('Sheet Selected: ' + AutoExcel.listOfSheets[int(AutoExcel.choice)])
+
+    @staticmethod
+    def initialize():
+
+        AutoExcel.sh1 = AutoExcel.wb.get_sheet_by_name(AutoExcel.listOfSheets[int(AutoExcel.choice)])
+        AutoExcel.maxRows = AutoExcel.sh1.max_row
+        # Output Excel
+        AutoExcel.wb_O = openpyxl.Workbook()
+        # sh1_O = wb_O.get_active_sheet()
+        AutoExcel.sh1_O = AutoExcel.wb_O.create_sheet(index=0, title='-Current')
+        AutoExcel.sh2_O = AutoExcel.wb_O.create_sheet(index=1, title='+Current')
+        AutoExcel.sh3_O = AutoExcel.wb_O.create_sheet(index=2, title='Charge_Discharge')
+        AutoExcel.outputFile = 'output'
+        AutoExcel.outputFile = input("Enter a Name for Output File: ")
+        AutoExcel.rowStarts = input('Row Starts at 2. Hit Enter to Confirm or Type a New value: ')
+        if (AutoExcel.rowStarts == '' or AutoExcel.rowStarts == None):
+            AutoExcel.rowStart = 2
+        else:
+            AutoExcel.rowStart = int(AutoExcel.rowStarts)
+
+        AutoExcel.potential_col = input("Potential: ")
+        AutoExcel.current_col = input("Current: ")
+        AutoExcel.time_col = input("Time: ")
+        AutoExcel.capacity_col = input("Capacity: ")
+        # chdc_gap = input("Gap between Charge-Discharge: ")
+        AutoExcel.chdc_gaps = input('Default Charge-Discharge Gap is 0. Hit Enter to Confirm / Type a New value: ')
+        if (AutoExcel.chdc_gaps == '' or AutoExcel.chdc_gaps == None):
+            AutoExcel.chdc_gap = 0
+        else:
+            AutoExcel.chdc_gap = int(AutoExcel.chdc_gaps)
+        print('xxx Initialized xxx')
 
     @staticmethod
     def negativeProc(current,i):
@@ -96,9 +118,9 @@ class AutoExcel:
         AutoExcel.sh1_O[capacityCoord] = capacity.value
         AutoExcel.index += 1
         print("Row#: " + str(i) + "  Saving " + str(current.value) + " in output..")
-        if i == AutoExcel.maxRows:
-            AutoExcel.groupLength.append(AutoExcel.index - 1)
-            AutoExcel.capture_Ch_Dc(i+1)
+        # if i == AutoExcel.maxRows:
+        #     AutoExcel.groupLength.append(AutoExcel.index - 1)
+        #     AutoExcel.capture_Ch_Dc(i+2)
 
     @staticmethod
     def capture_Ch_Dc(i):
@@ -125,23 +147,24 @@ class AutoExcel:
         AutoExcel.sh3_index += 1
 
     @staticmethod
-    def addChart(groupLength):
+    def addChart(groupLength1):
         print('Printing Chart...')
+        print('grouplength1: '+str(len(groupLength1)))
         chart = ScatterChart()
         chart.title = "Capacity Vs Voltage"
         chart.style = 13
         chart.x_axis.title = 'Capacity'
         chart.y_axis.title = 'Voltage'
-        le = (len(groupLength) * 4) + len(groupLength)
-        print("The sizes of each grp" + str(groupLength[0]))
+        le = (len(groupLength1) * 4) + len(groupLength1)
+        print("The sizes of each grp" + str(groupLength1[0]))
         k = 0
         m = 1
-        # print("list siz = " + str(len(groupLength)))
-        # print("le = " + str(le))
+        print("list siz = " + str(len(groupLength1)))
+        print("le = " + str(le))
         for j in range(4, le, 5):
-            # print("j = " + str(j))
-            xvalues = Reference(AutoExcel.sh1_O, min_col=j, min_row=1, max_row=groupLength[k])
-            values = Reference(AutoExcel.sh1_O, min_col=m, min_row=1, max_row=groupLength[k])
+            print("j = " + str(j))
+            xvalues = Reference(AutoExcel.sh1_O, min_col=j, min_row=1, max_row=groupLength1[k])
+            values = Reference(AutoExcel.sh1_O, min_col=m, min_row=1, max_row=groupLength1[k])
             series = Series(values, xvalues, title_from_data=True)
             chart.series.append(series)
             k += 1
@@ -153,7 +176,7 @@ class AutoExcel:
 
     @staticmethod
     def mainApp():
-
+        AutoExcel.groupLength = []
         redFill = PatternFill(start_color='FFFF0000',
                               end_color='FFFF0000',
                               fill_type='solid')
@@ -188,6 +211,11 @@ class AutoExcel:
                 AutoExcel.columnStart = get_column_letter(int(column_index_from_string(AutoExcel.columnStart))+5)
             else:
                 continue
+
+            #     TODO: DFix this Bug occuring at last row of charge discharge
+            if i == AutoExcel.maxRows:
+                AutoExcel.groupLength.append(AutoExcel.index - 1)
+                AutoExcel.capture_Ch_Dc(i)
         print("Saving values..")
         AutoExcel.wb_O.save(AutoExcel.outputFile+'.xlsx')
 
@@ -195,5 +223,3 @@ class AutoExcel:
 
         print("xxxxx------ Program Ended ------xxx")
         print("Output File Created: "+AutoExcel.outputFile+".xlsx")
-
-AutoExcel.mainApp()

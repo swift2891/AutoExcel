@@ -1,0 +1,52 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>Configuration</title>
+    <link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/bootstrap/3.3.5/css/bootstrap.min.css">
+    <link rel="stylesheet" href="{{ url_for('static', filename='css/main.css') }}"/>
+    <script src="https://maxcdn.bootstrapcdn.com/bootstrap/3.3.5/js/bootstrap.min.js"></script>
+</head>
+
+<body>
+<h1 align="center"><font color="#959fe5"> Configuration Page</font></h1>
+
+<div class="container">
+    <div class="row">
+        <div class="col-sm-1 col-md-1 col-lg-1">
+        </div>
+        <div class="col-sm-4 col-md-4 col-lg-4">
+            <br>
+            <h3> <font color="#ce8f48">Choose Your Sheet and Columns below:</font></h3>
+            <br>
+            <h4>Choose Your Desired Sheet:</h4>
+            <select>
+              <option value="volvo">Volvo</option>
+              <option value="saab">Saab</option>
+              <option value="opel">Opel</option>
+              <option value="audi">Audi</option>
+            </select>
+            <br>
+            <br>
+
+            <h4>Choose Appropriate Columns:</h4>
+            <form class="column-form" action="/" method="post">
+                <pre>
+                Potential  : <input type="text" size="4"> <br>
+                Current    : <input type="text" size="4"> <br>
+                Capacity   : <input type="text" size="4"> <br>
+                Time       : <input type="text" size="4"> <br>
+                Row Starts : <input type="text" size="4" value=2> <br>
+                Gap between
+                Charge &
+                Discharge  : <input type="text" size="4" value=0> <br>
+                </pre>
+            </form>
+            <input type="submit" class="btn btn-primary btn-lg">
+        </div>
+    </div>
+    </div>
+
+</div>
+</body>
+</html>
