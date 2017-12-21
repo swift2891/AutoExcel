@@ -20,6 +20,7 @@
             <h3> <font color="#ce8f48">Choose Your Sheet and Columns below:</font></h3>
             <br>
             <form class="column-form" action="/output" method="post">
+            <h5> <font color="#9b4455">Note: File You Uploaded: {{file_Selected}}</font></h5>
                 <h4>Choose Your Desired Sheet:</h4>
                 <select id="sheetSelect" name="sheetSelect" >
                     {% for option_sheet in listOfSheets %}
@@ -32,10 +33,10 @@
                 <h4>Choose Appropriate Columns:</h4>
 
                 <pre>
-                Potential  : <input id="potential_ip" name="potential_ip" type="text" size="4" required> <br>
-                Current    : <input id="current_ip" name="current_ip" type="text" size="4" required> <br>
-                Capacity   : <input id="capacity_ip" name="capacity_ip" type="text" size="4" required> <br>
-                Time       : <input id="time_ip" name="time_ip" type="text" size="4" required> <br>
+                Potential  : <input id="potential_ip" name="potential_ip" type="text" size="4" required placeholder="A"> <br>
+                Current    : <input id="current_ip" name="current_ip" type="text" size="4" required placeholder="B"> <br>
+                Capacity   : <input id="capacity_ip" name="capacity_ip" type="text" size="4" required placeholder="C"> <br>
+                Time       : <input id="time_ip" name="time_ip" type="text" size="4" required placeholder="D"> <br>
                 Row Starts : <input id="rowstart_ip" name="rowstart_ip" type="number" size="4" value=2 required> <br>
                 Gap between
                 Charge &

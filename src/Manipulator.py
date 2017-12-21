@@ -10,7 +10,7 @@ from openpyxl.chart import (
     Reference,
     Series,
 )
-
+# Todo: Handle bad inputs everywhere
 class AutoExcel:
     targetInputFile = None
     wb = None

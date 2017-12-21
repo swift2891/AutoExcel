@@ -47,7 +47,8 @@ def upload_file():
             filename = secure_filename(file.filename)
             file.save(os.path.join(app.config['UPLOAD_FOLDER'], filename))
             sheetsList = ManipulateFile()
-            return render_template('get_config.html', listOfSheets=sheetsList)
+            file_Selected = filename
+            return render_template('get_config.html', listOfSheets=sheetsList, file_Selected=file_Selected)
         else:
             return 'Not a Valid File. Upload only .xls files'
     else:
