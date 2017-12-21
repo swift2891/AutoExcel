@@ -19,18 +19,18 @@
             <br>
             <h3> <font color="#ce8f48">Choose Your Sheet and Columns below:</font></h3>
             <br>
-            <h4>Choose Your Desired Sheet:</h4>
-            <select>
-              <option value="volvo">Volvo</option>
-              <option value="saab">Saab</option>
-              <option value="opel">Opel</option>
-              <option value="audi">Audi</option>
-            </select>
-            <br>
-            <br>
-
-            <h4>Choose Appropriate Columns:</h4>
             <form class="column-form" action="/" method="post">
+                <h4>Choose Your Desired Sheet:</h4>
+                <select id="sheetSelect">
+                    {% for option_sheet in listOfSheets %}
+                    <option>{{option_sheet}}</option>
+                    {% endfor %}
+                </select>
+                <br>
+                <br>
+
+                <h4>Choose Appropriate Columns:</h4>
+
                 <pre>
                 Potential  : <input type="text" size="4"> <br>
                 Current    : <input type="text" size="4"> <br>

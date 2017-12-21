@@ -59,15 +59,15 @@ class AutoExcel:
         AutoExcel.wb = openpyxl.load_workbook(AutoExcel.targetInputFile)
         # Get Correct Sheet
         AutoExcel.listOfSheets = AutoExcel.wb.get_sheet_names()
-        # print(listOfSheets)
-        countOfSheets = 0
-        for sheet in AutoExcel.listOfSheets:
-            print('Press ' + str(countOfSheets) + ' for sheet ' + sheet)
-            countOfSheets += 1
-        AutoExcel.choice = input('Enter Your Choice: ')
-        # sh1 = wb.get_active_sheet()
-        print('Sheet Selected: ' + AutoExcel.listOfSheets[int(AutoExcel.choice)])
-
+        # # print(listOfSheets)
+        # countOfSheets = 0
+        # for sheet in AutoExcel.listOfSheets:
+        #     print('Press ' + str(countOfSheets) + ' for sheet ' + sheet)
+        #     countOfSheets += 1
+        # AutoExcel.choice = input('Enter Your Choice: ')
+        # # sh1 = wb.get_active_sheet()
+        # print('Sheet Selected: ' + AutoExcel.listOfSheets[int(AutoExcel.choice)])
+        return AutoExcel.listOfSheets
     @staticmethod
     def initialize():
 
@@ -118,9 +118,10 @@ class AutoExcel:
         AutoExcel.sh1_O[capacityCoord] = capacity.value
         AutoExcel.index += 1
         print("Row#: " + str(i) + "  Saving " + str(current.value) + " in output..")
-        # if i == AutoExcel.maxRows:
-        #     AutoExcel.groupLength.append(AutoExcel.index - 1)
-        #     AutoExcel.capture_Ch_Dc(i+2)
+
+        if i == AutoExcel.maxRows:
+            AutoExcel.groupLength.append(AutoExcel.index - 1)
+            AutoExcel.capture_Ch_Dc(i+1)
 
     @staticmethod
     def capture_Ch_Dc(i):
@@ -172,7 +173,9 @@ class AutoExcel:
 
         AutoExcel.sh1_O.add_chart(chart, 'L3')
 
-        AutoExcel.wb_O.save(AutoExcel.outputFile+'.xlsx')
+        out_f = "C:\\Users\\Vignesh\\PycharmProjects\\AutoExcel\\src\\uploads\\" + AutoExcel.outputFile+'.xlsx'
+        AutoExcel.wb_O.save(out_f)
+        # AutoExcel.wb_O.save(AutoExcel.outputFile+'.xlsx')
 
     @staticmethod
     def mainApp():
@@ -212,12 +215,14 @@ class AutoExcel:
             else:
                 continue
 
-            #     TODO: DFix this Bug occuring at last row of charge discharge
-            if i == AutoExcel.maxRows:
-                AutoExcel.groupLength.append(AutoExcel.index - 1)
-                AutoExcel.capture_Ch_Dc(i)
+            # if i == AutoExcel.maxRows:
+            #     AutoExcel.groupLength.append(AutoExcel.index - 1)
+            #     AutoExcel.capture_Ch_Dc(i+1)
         print("Saving values..")
-        AutoExcel.wb_O.save(AutoExcel.outputFile+'.xlsx')
+
+        out_f = "C:\\Users\\Vignesh\\PycharmProjects\\AutoExcel\\src\\uploads\\" + AutoExcel.outputFile + '.xlsx'
+        AutoExcel.wb_O.save(out_f)
+        # AutoExcel.wb_O.save(AutoExcel.outputFile+'.xlsx')
 
         AutoExcel.addChart(AutoExcel.groupLength)
 

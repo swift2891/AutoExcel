@@ -22,7 +22,6 @@ def clean():
         except Exception as e:
             print(e)
 
-
 def allowed_file(filename):
     return '.' in filename and \
            filename.rsplit('.', 1)[1].lower() in ALLOWED_EXTENSIONS
@@ -48,14 +47,15 @@ def upload_file():
         if file and allowed_file(file.filename):
             filename = secure_filename(file.filename)
             file.save(os.path.join(app.config['UPLOAD_FOLDER'], filename))
-            ManipulateFile()
-            return 'Success!!!'
+            sheetsList = ManipulateFile()
+            return render_template('get_config.html', listOfSheets=sheetsList)
         else:
             return 'Not a Valid File. Upload only .xls files'
     else:
         return 'Failed'
 
 def ManipulateFile():
+    listOfSheets = []
     print('Manipulating...')
     # Check if a file exist
     for fname in os.listdir('uploads'):
@@ -63,9 +63,11 @@ def ManipulateFile():
             print('Input File uploaded Successfully')
             targetFile = XLSCheck.checkInput(fname)
             print('Converted File: '+targetFile)
-            AutoExcel.loadSheets()
-            AutoExcel.initialize()
-            AutoExcel.mainApp()
+            listOfSheets = AutoExcel.loadSheets()
+            if len(listOfSheets)>1:
+                return listOfSheets
+            # AutoExcel.initialize()
+            # AutoExcel.mainApp()
             # return send_from_directory(app.config['UPLOAD_FOLDER'], opFile)
             break
     else:
