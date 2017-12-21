@@ -1,0 +1,23 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/bootstrap/3.3.5/css/bootstrap.min.css">
+    <link rel="stylesheet" href="{{ url_for('static', filename='css/main.css') }}"/>
+    <script src="https://maxcdn.bootstrapcdn.com/bootstrap/3.3.5/js/bootstrap.min.js"></script>
+
+    <title>Excel Conversion</title>
+</head>
+<body>
+<div class="container">
+<h1>Excel Converter</h1>
+<h3>Choose Your File (only .xls files)</h3>
+
+<form id="upldform" enctype="multipart/form-data" method="post" action="/fileupload">
+   <input id="ipfile" name="ipfile" type="file" />
+    <br>
+   <input type="submit" class="btn btn-success" value="Convert To .XLSX" id="submit" />
+</form>
+</div>
+</body>
+</html>
